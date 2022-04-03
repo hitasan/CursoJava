@@ -15,6 +15,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import model.services.DepartmentService;
 
 public class MainViewController implements Initializable {
 
@@ -34,7 +35,8 @@ public class MainViewController implements Initializable {
 	
 	@FXML
 	public void onMenuItemDepartmentAction() {
-		loadView("/gui/DepartmentList.fxml");
+		//loadView("/gui/DepartmentList.fxml");
+		loadView2("/gui/DepartmentList.fxml");
 	}
 	
 	@FXML
@@ -64,6 +66,32 @@ public class MainViewController implements Initializable {
 			
 			mainVBox.getChildren().add(mainMenu);					// Adiciona o menu do VBOX principal
 			mainVBox.getChildren().addAll(newVBox.getChildren());	// Adiciona os filhos do Vbox About
+			
+		} catch (IOException e) {
+			Alerts.showAlert("IO Exception", "Erro carregando a tela", e.getMessage(), AlertType.ERROR);
+		}
+	}
+
+	private synchronized void loadView2(String absoluteName) {
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
+			VBox newVBox = loader.load();
+			
+			// Mostrar essa view dentro da janela MDI principal
+			Scene mainScene = Main.getMainScene();	// Pegando a scene da tela principal
+			VBox mainVBox = (VBox) ((ScrollPane) mainScene.getRoot()).getContent();	// Root pega o primeiro elemento da minha view
+			
+			Node mainMenu = mainVBox.getChildren().get(0);	// Pegando o primeiro filho do VBOX da tela principal
+			mainVBox.getChildren().clear();		// Limpando todos os filhos do mainVBox
+			
+			mainVBox.getChildren().add(mainMenu);					// Adiciona o menu do VBOX principal
+			mainVBox.getChildren().addAll(newVBox.getChildren());	// Adiciona os filhos do Vbox About
+			
+			
+			// Processo manual para injetar a dependencia no controller e atualizar os dados na tela da tableView
+			DepartmentListController controller = loader.getController();
+			controller.setDepartmentService(new DepartmentService());	// Para injetar a dependencia do service la no controller
+			controller.updateTableView();
 			
 		} catch (IOException e) {
 			Alerts.showAlert("IO Exception", "Erro carregando a tela", e.getMessage(), AlertType.ERROR);

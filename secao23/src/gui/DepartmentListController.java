@@ -1,9 +1,12 @@
 package gui;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import application.Main;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -12,8 +15,12 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import model.entities.Department;
+import model.services.DepartmentService;
 
 public class DepartmentListController implements Initializable {
+	
+	// Declaração de dependencia com o service e a instanciação nao será usada para usar o metodo set para injeção de dependencia
+	private DepartmentService service;
 
 	// Entidas da classe - Serão associados aos objetos da tela
 	@FXML
@@ -25,10 +32,18 @@ public class DepartmentListController implements Initializable {
 	@FXML
 	private Button btNew;
 	
+	private ObservableList<Department> obsList;
+	
 	// Metodo para tratamento de eventos do click do botao NEW
 	@FXML
 	public void onBtNewAction() {
 		System.out.println("Clicou no botão NEW");
+	}
+	
+	
+	// Metodo SET para adicionar o serviço e evitar o acoplamento
+	public void setDepartmentService(DepartmentService service) {
+		this.service = service;
 	}
 	
 	// Metodo inicializador
@@ -39,12 +54,29 @@ public class DepartmentListController implements Initializable {
 
 	private void initializeNodes() {
 		// Padrao do JavaFX para iniciar o comportamento das colunas
-		tableColumnId.setCellValueFactory(new PropertyValueFactory<>("ID"));
-		tableColumnName.setCellValueFactory(new PropertyValueFactory<>("NAME"));
+		tableColumnId.setCellValueFactory(new PropertyValueFactory<>("id"));
+		tableColumnName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		
 		// Tratamento para tableView completar a altura da janela
 		Stage stage = (Stage) Main.getMainScene().getWindow();
 		tableViewDepartment.prefHeightProperty().bind(stage.heightProperty());
+	}
+	
+	
+	// Metodo responsavel por acessar o serviço, carregar os departamentos e jogar os departamentos na observableList e esse será associado a tableView
+	public void updateTableView() {
+		if ( service == null) {
+			throw new IllegalThreadStateException("Service está nulo");
+		}
+		
+		// Listando os departamentos listados
+		List<Department> list = service.findAll();
+		
+		// Carregando a lista dentro do observableList
+		obsList = FXCollections.observableArrayList(list);
+		
+		// Associando o observableList no tableViewDepartment
+		tableViewDepartment.setItems(obsList);
 	}
 
 }
