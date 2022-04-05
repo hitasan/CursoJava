@@ -1,9 +1,12 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import db.DbException;
+import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
@@ -22,6 +25,8 @@ public class DepartmentFormController implements Initializable {
 	// Adicionando uma dependencia
 	private Department entity;			// Para o departamento
 	private DepartmentService service;	// Para o serviço de departamento
+	
+	private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
 	
 	// Declaração dos componentes da tela
 	@FXML
@@ -52,6 +57,8 @@ public class DepartmentFormController implements Initializable {
 			entity = getFormData();	// Responsavel por pegar os dados do formulario e instanciar um departamento
 			service.saveOrUpdate(entity);
 			
+			notifyDataChangeListeners();
+			
 			// Apos processamento no banco precisamos fechar a janela
 			Utils.currentStage(event).close();	// Pegando a referencia para a janela atual (Janela do formulario)
 			
@@ -59,13 +66,21 @@ public class DepartmentFormController implements Initializable {
 			Alerts.showAlert("Error saving object", null, e.getMessage(), AlertType.ERROR);
 		}
 	}
-	
+
 	private Department getFormData() {
 		Department obj = new Department();
 		obj.setId(Utils.tryParseToInt(txtId.getText()));
 		obj.setName(txtName.getText());
 		
 		return obj;
+	}
+	
+	private void notifyDataChangeListeners() {
+
+		for (DataChangeListener listener : dataChangeListeners) {
+			listener.onDataChanged();
+		}
+		
 	}
 
 	@FXML
@@ -81,6 +96,11 @@ public class DepartmentFormController implements Initializable {
 	// Metodo set para dependencia do ServiceDepartment
 	public void setDepartmentService(DepartmentService service) {
 		this.service = service;	// Com isso o controlador terá uma instancia do departmentService
+	}
+	
+	//
+	public void subscribeDataChangeListener(DataChangeListener listener) {
+		dataChangeListeners.add(listener);
 	}
 	
 
