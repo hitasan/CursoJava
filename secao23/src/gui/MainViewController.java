@@ -17,6 +17,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import model.services.DepartmentService;
+import model.services.SellerService;
 
 public class MainViewController implements Initializable {
 
@@ -31,15 +32,18 @@ public class MainViewController implements Initializable {
 	// Metodos de ação/Eventos da tela
 	@FXML
 	public void onMenuItemSellerAction() {
-		System.out.println("onMenuItemSellerAction click");
+		loadView("/gui/SellerList.fxml", (SellerListController ctrl) -> {
+																		ctrl.setSellerService(new SellerService());
+																		ctrl.updateTableView();
+																		});		// Modo com segundo parametro LAMBDA com uma função para inicializar o controlador sellerListController  
 	}
 	
 	@FXML
 	public void onMenuItemDepartmentAction() {
 		loadView("/gui/DepartmentList.fxml", (DepartmentListController ctrl) -> {
-					ctrl.setDepartmentService(new DepartmentService());
-					ctrl.updateTableView();
-				});		// Modo com segundo parametro LAMBDA com uma função para inicializar o controlador departmentListController  
+																				ctrl.setDepartmentService(new DepartmentService());
+																				ctrl.updateTableView();
+																				});		// Modo com segundo parametro LAMBDA com uma função para inicializar o controlador departmentListController  
 	}
 	
 	@FXML
