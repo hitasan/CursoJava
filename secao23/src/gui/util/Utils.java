@@ -23,9 +23,18 @@ public class Utils {
 	// Metodo para auxilio em conversao de valor da caixa de texto para inteiro
 	public static Integer tryParseToInt(String str) {
 		try {
-
+			
 			return Integer.parseInt(str);
+			
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
 
+	// Metodo para auxilio em conversao de valor da caixa de texto para double
+	public static Double tryParseToDouble(String str) {
+		try {
+			return Double.parseDouble(str);
 		} catch (NumberFormatException e) {
 			return null;
 		}
